@@ -1,0 +1,17 @@
+---
+title: "Downloading Documentation"
+author: Marcel Ramos
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+## Downloading BRFSS Documentation
+
+```{r}
+years <- seq(2011, 2013)
+brfssURL <- paste0("http://www.cdc.gov/brfss/annual_data/", years, "/pdf/codebook", substr(years, 3, 4), "_llcp.pdf")
+destFILES <- paste0("BRFSS", years, "doc.pdf")
+if(.Platform$OS.type != "unix"){
+setInternet2(use = TRUE) }
+sapply(seq(brfssURL), FUN = function(myindex) { download.file(url = brfssURL[myindex], destfile = destFILES[myindex]) } )
+```
