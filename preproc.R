@@ -5,6 +5,7 @@ library(maps)
 library(dplyr)
 library(foreign)
 library(survey)
+library(data.table)
 
 list(brfss1 = read.xport("data/LLCP2011.XPT"), 
 	brfss2 = read.xport("data/LLCP2012.XPT"), 
@@ -37,5 +38,21 @@ options(survey.lonely.psu="remove")
 
 DSGS <- lapply(seq_along(BRFSS), function(mysurvey, i) {svydesign(id = ~PSU, strata = ~STSTR, weights = ~LLCPWT, data = mysurvey[[i]], nest = TRUE)}, mysurvey = BRFSS)
 
-grouped <- lapply(seq_along(DSGS), FUN = function(svyobj, i) { data.frame(svytable(~AGEGROUP+STATE+GENDER+IMPRACE, svyobj[[i]], 
-Ntotal = sum(weights(svyobj[[i]], "sampling"))), YEAR = c(2011:2013)[i], stringsAsFactors = FALSE)}, svyobj = DSGS)
+lapply(seq_along(DSGS), FUN = function(svyobj, i) { data.frame(svytable(~AGEGROUP+STATE+GENDER+IMPRACE+OBESE, svyobj[[i]], 
+Ntotal = sum(weights(svyobj[[i]], "sampling"))), YEAR = c(2011:2013)[i], stringsAsFactors = FALSE)}, svyobj = DSGS) %>% 
+	rbindlist -> obesity 
+
+#Loading Census Population Proportions Data
+ASprops <- read.csv("data/Census2010prop.csv", header=TRUE, colClasses=c("factor", "integer", "numeric"))
+
+#Loading farmers market / fast food data
+fmf <- read.csv("data/percap_fst_fm.csv")
+
+setkey(obesity, AGEGROUP)
+obesity <- obesity[ASprops[, c("Age.Group","Percent")]]
+setnames(obesity, "Percent", "AGEPR")
+obesity[, ASTDFQ:= Freq*AGEPR]
+
+save(obesity, file = "data/obesity.rda")
+
+
