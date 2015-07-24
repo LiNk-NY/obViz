@@ -48,10 +48,12 @@ ASprops <- read.csv("data/Census2010prop.csv", header=TRUE, colClasses=c("factor
 #Loading farmers market / fast food data
 fmf <- read.csv("data/percap_fst_fm.csv")
 
-setkey(obesity, AGEGROUP)
+setkey(obesity, AGEGROUP, STATE)
 obesity <- obesity[ASprops[, c("Age.Group","Percent")]]
+obesity <- obesity[mapsdf]
 setnames(obesity, "Percent", "AGEPR")
 obesity[, ASTDFQ:= Freq*AGEPR]
+
 
 save(obesity, file = "data/obesity.rda")
 
