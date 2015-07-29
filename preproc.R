@@ -35,14 +35,22 @@ mapsdf <- data.frame(REGION = factor(state.fips$region, levels = 1:4,
 
 BRFSS <- lapply(BRFSS, FUN = function(mydat) {mydat <- right_join(mydat, mapsdf, by= "FIPS")
 						 mydat}) 
+# save(BRFSS, file = "data/surveydata.Rda")
+
+BRFSS_A <- lapply(BRFSS, function(mysurv) { subset(mysurv, mysurv$ADLT == 1) } )
+
 options(survey.lonely.psu="remove")
 
-DSGS <- lapply(seq_along(BRFSS), function(mysurvey, i) {svydesign(id = ~PSU, strata = ~STSTR, weights = ~LLCPWT, data = mysurvey[[i]], nest = TRUE)}, mysurvey = BRFSS)
+DSGS <- lapply(BRFSS_A, function(mysurvey) {svydesign(id = ~PSU, strata = ~STSTR, weights = ~LLCPWT, data = mysurvey, nest = TRUE)} )
+# save(DSGS, file = "data/svydesign.Rda")
 
-DSUBS <- lapply(seq_along(DSGS), function(mysurv, mydesg, i) { subset(mydesg[[i]], mysurv[[i]]$ADLT == 1 & mysurv[[i]]$STATE < 57)}, mysurv = BRFSS, mydesg = DSGS)
+# DSUBS <- lapply(DSGS, function(mydseg, mysurv) { subset(mydseg, mysurv$ADLT == 1 & mysurv$FIPS < 57) }, mysurv = BRFSS_A)
 
-obesity <- lapply(seq_along(DSUBS), FUN = function(svyobj, i) { data.frame(svytable(~AGEGROUP+STATE+GENDER+IMPRACE+OBESE, svyobj[[i]], 
-        Ntotal = sum(weights(svyobj[[i]], "sampling"))), YEAR = c(2011:2013)[i], stringsAsFactors = FALSE)}, svyobj = DSUBS) %>% 
+DSUBS <- lapply(seq_along(DSGS), function(mysurv, mydseg, indx) { subset(mydseg[[indx]], mysurv[[indx]]$ADLT == 1 & mysurv[[indx]]$FIPS < 57)
+						}, mysurv = BRFSS_A, mydseg = DSGS)
+
+obesity <- lapply(DSUBS, FUN = function(svyobj, indx) { data.frame(svytable(~AGEGROUP+STATE+GENDER+IMPRACE+OBESE, svyobj,
+        Ntotal = sum(weights(svyobj, "sampling"))), YEAR = c(2011:2013)[indx], stringsAsFactors = FALSE)}, indx = c(1:3)) %>% 
         rbindlist 
 
 #Loading Census Population Proportions Data
@@ -58,6 +66,6 @@ setnames(obesity, "Percent", "AGEPR")
 obesity[, ASTDFQ:= Freq*AGEPR]
 
 
-save(obesity, file = "data/obesity.rda")
+# save(obesity, file = "data/obesity.rda")
 
 
