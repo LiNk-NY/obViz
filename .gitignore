@@ -1,0 +1,6 @@
+# Ignore vim files
+*~
+*.swp
+*.Rproj
+*.XPT
+*.pdf
