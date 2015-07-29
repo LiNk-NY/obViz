@@ -18,6 +18,7 @@ sapply(seq_along(brfssURL), FUN = function(myindex) { download.file(url = brfssU
 ```
 
 ```{r}
+library(pipeR)
 dataURL <- paste0("http://www.cdc.gov/brfss/annual_data/", years, "/files/LLCP20", substr(years, 3, 4), "XPT.ZIP")
 dataFiles <- sapply(dataURL, strsplit, "/") %>>% lapply("[", 8) %>>% gsub(pattern = ".ZIP", replacement = ".XPT")
 sapply(seq_along(dataURL), FUN = function(myindex) { download.file(url = dataURL[myindex], destfile = dataFiles[myindex]) } )
