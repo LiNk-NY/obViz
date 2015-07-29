@@ -6,6 +6,7 @@ library(dplyr)
 library(foreign)
 library(survey)
 library(data.table)
+data(state.fips)
 
 list(brfss1 = read.xport("data/LLCP2011.XPT"), 
 	brfss2 = read.xport("data/LLCP2012.XPT"), 
@@ -38,9 +39,11 @@ options(survey.lonely.psu="remove")
 
 DSGS <- lapply(seq_along(BRFSS), function(mysurvey, i) {svydesign(id = ~PSU, strata = ~STSTR, weights = ~LLCPWT, data = mysurvey[[i]], nest = TRUE)}, mysurvey = BRFSS)
 
-lapply(seq_along(DSGS), FUN = function(svyobj, i) { data.frame(svytable(~AGEGROUP+STATE+GENDER+IMPRACE+OBESE, svyobj[[i]], 
-Ntotal = sum(weights(svyobj[[i]], "sampling"))), YEAR = c(2011:2013)[i], stringsAsFactors = FALSE)}, svyobj = DSGS) %>% 
-	rbindlist -> obesity 
+DSUBS <- lapply(seq_along(DSGS), function(mysurv, mydesg, i) { subset(mydesg[[i]], mysurv[[i]]$ADLT == 1 & mysurv[[i]]$STATE < 57)}, mysurv = BRFSS, mydesg = DSGS)
+
+obesity <- lapply(seq_along(DSUBS), FUN = function(svyobj, i) { data.frame(svytable(~AGEGROUP+STATE+GENDER+IMPRACE+OBESE, svyobj[[i]], 
+        Ntotal = sum(weights(svyobj[[i]], "sampling"))), YEAR = c(2011:2013)[i], stringsAsFactors = FALSE)}, svyobj = DSUBS) %>% 
+        rbindlist 
 
 #Loading Census Population Proportions Data
 ASprops <- read.csv("data/Census2010prop.csv", header=TRUE, colClasses=c("factor", "integer", "numeric"))
