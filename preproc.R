@@ -35,9 +35,10 @@ mapsdf <- data.frame(REGION = factor(state.fips$region, levels = 1:4,
 
 BRFSS <- lapply(BRFSS, FUN = function(mydat) {mydat <- right_join(mydat, mapsdf, by= "FIPS")
 						 mydat}) 
-# save(BRFSS, file = "data/surveydata.Rda")
 
 BRFSS_A <- lapply(BRFSS, function(mysurv) { subset(mysurv, mysurv$ADLT == 1) } )
+
+# save(BRFSS_A, file = "data/surveydata.Rda")
 
 options(survey.lonely.psu="remove")
 

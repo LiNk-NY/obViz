@@ -4,3 +4,6 @@
 *.Rproj
 *.XPT
 *.pdf
+*.Rhistory
+surveydata.Rda
+svydesign.Rda

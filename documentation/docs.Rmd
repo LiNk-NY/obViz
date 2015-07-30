@@ -8,7 +8,6 @@ output: html_document
 ## Downloading BRFSS Documentation
 
 ```{r}
-devtools::install_github(renkun-ken/pipeR)
 years <- seq(2011, 2013)
 brfssURL <- paste0("http://www.cdc.gov/brfss/annual_data/", years, "/pdf/codebook", substr(years, 3, 4), "_llcp.pdf")
 destFILES <- paste0("BRFSS", years, "doc.pdf")
@@ -17,9 +16,18 @@ setInternet2(use = TRUE) }
 sapply(seq_along(brfssURL), FUN = function(myindex) { download.file(url = brfssURL[myindex], destfile = destFILES[myindex]) } )
 ```
 
+! Warning: May not work !
+
 ```{r}
+devtools::install_github(renkun-ken/pipeR)
 library(pipeR)
-dataURL <- paste0("http://www.cdc.gov/brfss/annual_data/", years, "/files/LLCP20", substr(years, 3, 4), "XPT.ZIP")
-dataFiles <- sapply(dataURL, strsplit, "/") %>>% lapply("[", 8) %>>% gsub(pattern = ".ZIP", replacement = ".XPT")
+
+dataURL <- paste0("http://www.cdc.gov/brfss/annual_data/", years, "/files/LLCP20", substr(years, 3, 4), "XPT.ZIP") 
+dataFiles <- sapply(dataURL, strsplit, "/") %>>% sapply("[", 8) %>>% unname
 sapply(seq_along(dataURL), FUN = function(myindex) { download.file(url = dataURL[myindex], destfile = dataFiles[myindex]) } )
+dataXPT <- gsub(pattern = ".ZIP", replacement = ".XPT", dataFiles)
+for(i in seq_along(1:3)){
+        unz(dataFiles[i], filename = dataXPT[i])
+        unlink(dataFiles[i])
+}
 ```
