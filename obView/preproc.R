@@ -20,53 +20,57 @@ lapply(seq_along(.), FUN = function(mydat, i) {
 	AGEGROUP = factor(AGEGROUP, levels = seq(6), labels=c("18-24", "25-34", 
 						"35-44", "45-54", "55-64", ">65")),
 	BMI5CAT = factor(BMI5CAT, levels = seq(4), labels = c("Underweight", "Normal", "Overweight", "Obese")),
-	OBESE = ifelse(BMI5CAT == 4, 1, 0), 
+	OBESE = ifelse(BMI5CAT == "Obese", 1, 0), 
 	ADLT = ifelse(AGE65YR == 1 | AGE65YR == 2, 1, 0),
 	YEAR = c(2011:2013)[i])
- }, mydat = .) -> BRFSS 
+ }, mydat = .) %>% lapply(., function(mysurv) { subset(mysurv, mysurv$ADLT == 1) } ) -> BRFSS 
 
-mapsdf <- data.frame(REGION = factor(state.fips$region, levels = 1:4, 
-	labels = c("North East", "MidWest", "South", "West")), 
+mapsdf <- data.table(REGION = as.character(factor(state.fips$region, levels = 1:4, 
+	labels = c("North East", "MidWest", "South", "West"))), 
 	STATE = as.character(state.fips$polyname) %>% gsub(pattern = ":.*", "", .) %>%
 	strsplit(" ") %>% 
 	sapply(function(x) { paste(toupper(substr(x, 1,1)), substring(x, 2), sep = "", collapse = " ")}),
-	ABB = state.fips$abb, 
-	FIPS = state.fips$fips, stringsAsFactors = FALSE)
+	ABB = as.character(state.fips$abb), 
+	FIPS = state.fips$fips)
+setkey(mapsdf, STATE)
+
+# save(mapsdf, file = "data/states.Rda")
 
 BRFSS <- lapply(BRFSS, FUN = function(mydat) {mydat <- right_join(mydat, mapsdf, by= "FIPS")
 						 mydat}) 
 
-BRFSS_A <- lapply(BRFSS, function(mysurv) { subset(mysurv, mysurv$ADLT == 1) } )
-
-# save(BRFSS_A, file = "data/surveydata.Rda")
+# save(BRFSS, file = "data/surveydata.Rda")
 
 options(survey.lonely.psu="remove")
 
-DSGS <- lapply(BRFSS_A, function(mysurvey) {svydesign(id = ~PSU, strata = ~STSTR, weights = ~LLCPWT, data = mysurvey, nest = TRUE)} )
+DSGS <- lapply(BRFSS, function(mysurvey) {svydesign(id = ~PSU, strata = ~STSTR, weights = ~LLCPWT, data = mysurvey, nest = TRUE)} )
 # save(DSGS, file = "data/svydesign.Rda")
 
-# DSUBS <- lapply(DSGS, function(mydseg, mysurv) { subset(mydseg, mysurv$ADLT == 1 & mysurv$FIPS < 57) }, mysurv = BRFSS_A)
-
 DSUBS <- lapply(seq_along(DSGS), function(mysurv, mydseg, indx) { subset(mydseg[[indx]], mysurv[[indx]]$ADLT == 1 & mysurv[[indx]]$FIPS < 57)
-						}, mysurv = BRFSS_A, mydseg = DSGS)
+						}, mysurv = BRFSS, mydseg = DSGS)
 
 obesity <- lapply(DSUBS, FUN = function(svyobj, indx) { data.frame(svytable(~AGEGROUP+STATE+GENDER+IMPRACE+OBESE, svyobj,
         Ntotal = sum(weights(svyobj, "sampling"))), YEAR = c(2011:2013)[indx], stringsAsFactors = FALSE)}, indx = c(1:3)) %>% 
         rbindlist 
 
 #Loading Census Population Proportions Data
-ASprops <- read.csv("data/Census2010prop.csv", header=TRUE, colClasses=c("factor", "integer", "numeric"))
+props <- read.csv("data/Census2010prop.csv", header=TRUE, colClasses=c("character", "integer", "numeric"))
 
 #Loading farmers market / fast food data
 fmf <- read.csv("data/percap_fst_fm.csv")
 
-setkey(obesity, AGEGROUP, STATE)
-obesity <- obesity[ASprops[, c("Age.Group","Percent")]]
-obesity <- obesity[mapsdf]
-setnames(obesity, "Percent", "AGEPR")
+# load("data/obesity.Rda")
+
+obesity[, AGEPR := props$Percent[match(AGEGROUP, props$Age.Group)]] 
+obesity[, STATE := as.character(STATE)] 
+obesity[, AGEGROUP := as.character(AGEGROUP)]
+
+setkey(obesity, STATE)
+obesity <- obesity[mapsdf, allow.cartesian = TRUE]
+
 obesity[, ASTDFQ:= Freq*AGEPR]
 
 
-# save(obesity, file = "data/obesity.rda")
+# save(obesity, file = "data/obesity.Rda")
 
 
