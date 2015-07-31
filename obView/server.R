@@ -56,10 +56,11 @@ state_popup <- reactive({
       # cast1 <- merge(mydaat$data, fmf, by.x = "FIPS", by.y = "fips")
       # colnames(cast1)[grep("capfarmkt", colnames(cast1))] <- "MarketsPerPop"
       setnames(cast1, "percapfarmkt", "MarketPerPop")
-      cast1$MarketsPerPop <- round(cast1$MarketsPerPop, 2)
+      cast1[, MarketPerPop := round(MarketPerPop, 2)]
+      # cast1$MarketsPerPop <- round(cast1$MarketsPerPop, 2)
       cast1 <- cbind(cast1, Population.Proportion=round((cast1$popfm/sum(cast1$popfm))*100,2))
       
-      return(gvisBubbleChart(cast1, idvar="ABB", xvar="Prevalence", yvar="MarketsPerPop", 
+      return(gvisBubbleChart(cast1, idvar="ABB", xvar="Prevalence", yvar="MarketPerPop", 
                              sizevar="Population.Proportion",colorvar="REGION",
                              options=list(width=800,
                                           height=400,
@@ -80,7 +81,8 @@ state_popup <- reactive({
       # cast1 <- merge(mydaat$data, fmf, by.x = "FIPS", by.y = "fips")
       # colnames(cast1)[grep("capfstfd", colnames(cast1))] <- "FastFoodPerPop"
       setnames(cast1, "percapfstfd", "FastFoodPerPop")
-      cast1$FastFoodPerPop <- round(cast1$FastFoodPerPop, 2)
+      cast1[, FastFoodPerPop := round(FastFoodPerPop, 2)]
+      # cast1$FastFoodPerPop <- round(cast1$FastFoodPerPop, 2)
       cast1 <- cbind(cast1, Population.Proportion=round((cast1$popff/sum(cast1$popff))*100,2))
       
       return(gvisBubbleChart(cast1, idvar="ABB", xvar="Prevalence", yvar="FastFoodPerPop", 
