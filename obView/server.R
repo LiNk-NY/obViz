@@ -6,7 +6,9 @@ proportion <- round(col3/(col2 + col3), 3)
 proportion*100
 }
 
-fmf <- read.csv("data/percap_fst_fm.csv")
+fmf <- fread("data/percap_fst_fm.csv")
+fmf <- data.table(fmf)
+setkey(fmf, fips)
 
 us <- map('state', fill = TRUE, plot = FALSE)
 
@@ -48,9 +50,12 @@ state_popup <- reactive({
     
     output$farmers <- renderGvis({
       mydaat <- table_wide() 
-      mydaat <- as.data.frame(mydaat$data)
-      cast1 <- merge(mydaat$data, fmf, by.x = "FIPS", by.y = "fips")
-      colnames(cast1)[grep("capfarmkt", colnames(cast1))] <- "MarketsPerPop"
+      mydaat <- mydaat$data
+      setkey(mydaat, FIPS)
+      cast1 <- mydaat[fmf, allow.cartesian = TRUE]
+      # cast1 <- merge(mydaat$data, fmf, by.x = "FIPS", by.y = "fips")
+      # colnames(cast1)[grep("capfarmkt", colnames(cast1))] <- "MarketsPerPop"
+      setnames(cast1, "percapfarmkt", "MarketPerPop")
       cast1$MarketsPerPop <- round(cast1$MarketsPerPop, 2)
       cast1 <- cbind(cast1, Population.Proportion=round((cast1$popfm/sum(cast1$popfm))*100,2))
       
@@ -69,9 +74,12 @@ state_popup <- reactive({
     
     output$fastfood <- renderGvis({
       mydaat <- table_wide() 
-      mydaat <- as.data.frame(mydaat$data)
-      cast1 <- merge(mydaat$data, fmf, by.x = "FIPS", by.y = "fips")
-      colnames(cast1)[grep("capfstfd", colnames(cast1))] <- "FastFoodPerPop"
+      mydaat <- mydaat$data
+      setkey(mydaat, FIPS)
+      cast1 <- mydaat[fmf, allow.cartesian = TRUE]
+      # cast1 <- merge(mydaat$data, fmf, by.x = "FIPS", by.y = "fips")
+      # colnames(cast1)[grep("capfstfd", colnames(cast1))] <- "FastFoodPerPop"
+      setnames(cast1, "percapfstfd", "FastFoodPerPop")
       cast1$FastFoodPerPop <- round(cast1$FastFoodPerPop, 2)
       cast1 <- cbind(cast1, Population.Proportion=round((cast1$popff/sum(cast1$popff))*100,2))
       
@@ -94,7 +102,7 @@ state_popup <- reactive({
       grptot <- aggregate(`1`+`0`~AGEGROUP, side, sum)
       colnames(grptot)[2] <- "TotFQ"
       side$GTOT <- grptot$TotFQ[match(side$AGEGROUP, grptot$AGEGROUP)]
-      side$Prop <- side$Yes/side$GTOT
+      side$Prop <- side$YES/side$GTOT
       return(side)
     })
     
@@ -104,7 +112,7 @@ state_popup <- reactive({
       grptot <- aggregate(`1`+`0`~AGEGROUP, side, sum)
       colnames(grptot)[2] <- "TotFQ"
       side$GTOT <- grptot$TotFQ[match(side$AGEGROUP, grptot$AGEGROUP)]
-      side$Prop <- side$Yes/side$GTOT
+      side$Prop <- side$YES/side$GTOT
       return(side)
     })
     
