@@ -1,4 +1,4 @@
-load("data/obesity.Rda")
+load("data/fullsurvey.Rda")
 load("data/states.Rda")
 
 perc <- function(col2, col3){
@@ -12,14 +12,14 @@ setkey(fmf, fips)
 
 us <- map('state', fill = TRUE, plot = FALSE)
 
-mypal <- colorQuantile("PuBu", NULL, n = 9)
+mypal <- colorQuantile("Reds", NULL, n = 9)
 
 
 shinyServer(
  function(input, output) {
 
 table_wide <- reactive({
-	re_tab <- subset(obesity, YEAR == input$year & GENDER %in% input$sex & AGEGROUP %in% input$agegroup & IMPRACE %in% input$race)
+	re_tab <- subset(BRFSS, YEAR == input$year & GENDER %in% input$sex & AGEGROUP %in% input$agegroup & IMPRACE %in% input$race)
 	re_tab <- droplevels(re_tab)
 	re_tab <- group_by(re_tab, OBESE, STATE) %>% summarize(Prevalence = sum(ASTDFQ)) %>% spread(OBESE, Prevalence) %>% dplyr::rename(NO = `0`, YES = `1`)
 	re_tab <- cbind(re_tab, Prevalence = perc(re_tab[[2]], re_tab[[3]]))
@@ -99,22 +99,22 @@ state_popup <- reactive({
     })
    
     side_tab <-  reactive({
-      side <- filter(obesity, YEAR==input$year & STATE == input$state)
+      side <- base::subset(BRFSS, YEAR == input$year & STATE == input$state)
       side <- dcast(aggregate(ASTDFQ~OBESE+AGEGROUP+IMPRACE, side, sum), AGEGROUP+IMPRACE~OBESE, value.var="ASTDFQ", na.action=na.omit)
       grptot <- aggregate(`1`+`0`~AGEGROUP, side, sum)
       colnames(grptot)[2] <- "TotFQ"
       side$GTOT <- grptot$TotFQ[match(side$AGEGROUP, grptot$AGEGROUP)]
-      side$Prop <- side$YES/side$GTOT
+      side$Prop <- side$`1`/side$GTOT
       return(side)
     })
     
     side_tab2 <-  reactive({
-      side <- filter(obesity, YEAR==input$year & STATE == input$state)
+      side <- base::subset(BRFSS, YEAR == input$year & STATE == input$state)
       side <- dcast(aggregate(ASTDFQ~OBESE+AGEGROUP+GENDER, side, sum), AGEGROUP+GENDER~OBESE, value.var="ASTDFQ", na.action=na.omit)
       grptot <- aggregate(`1`+`0`~AGEGROUP, side, sum)
       colnames(grptot)[2] <- "TotFQ"
       side$GTOT <- grptot$TotFQ[match(side$AGEGROUP, grptot$AGEGROUP)]
-      side$Prop <- side$YES/side$GTOT
+      side$Prop <- side$`1`/side$GTOT
       return(side)
     })
     

@@ -10,7 +10,7 @@ library(ggplot2)
 library(gridExtra)
 library(reshape2)
 
-load("data/obesity.Rda")
+load("data/fullsurvey.Rda")
 
 tabPanelAbout <- source("about.r")$value
 
@@ -58,7 +58,7 @@ shinyUI(
                         leafletOutput(outputId="obemap"),
                           h3("State Viewer"),
                           selectInput("state", label="Select a state to learn more about the distribution of obesity by age, sex, and racial/ethnic group.",
-                                      choices= unique(obesity$STATE)),
+                                      choices= unique(BRFSS$STATE)),
                           plotOutput(outputId="stateview"),
                         
                         helpText(HTML(paste("Data are presented in percentages, age-adjusted to the nationwide age distribution from the 2010 Census.",
