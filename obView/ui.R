@@ -35,7 +35,7 @@ shinyUI(
                helpText(h6("Visualize obesity by:")),
                
                checkboxGroupInput("sex", 
-                                  label = "sex",
+                                  label = "Gender",
                                   choices = c("Male", "Female"),
                                   selected = c("Male", "Female")),
                

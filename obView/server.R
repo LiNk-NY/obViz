@@ -69,7 +69,7 @@ state_popup <- reactive({
                                           titleTextStyle="{fontSize:18}",
                                           vAxis ="{title:'Farmers\\' Markets per 100,000 population', 
                                                                 viewWindowMode:'explicit', viewWindow:{min:0}}",
-                                          hAxis="{title:'Proportion of State Residents with Met. Synd.',
+                                          hAxis="{title:'Proportion of State Residents with Obesity',
                                                                 viewWindowMode:'explicit', viewWindow:{min:0}}"   )))
     })
     
@@ -94,7 +94,7 @@ state_popup <- reactive({
                                           titleTextStyle="{fontSize:18}",
                                           vAxis ="{title:'Fast Food Restaurants per 100,000 population', 
                                                                 viewWindowMode:'explicit', viewWindow:{min:0}}",
-                                          hAxis="{title:'Proportion of State Residents with Met. Synd.',
+                                          hAxis="{title:'Proportion of State Residents with Obesity',
                                                                 viewWindowMode:'explicit', viewWindow:{min:0}}"   )))
     })
    
