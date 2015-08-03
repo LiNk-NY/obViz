@@ -1,8 +1,8 @@
 function(){
         tabPanel("About",
                  HTML('<div style="float: right; margin: 5px 5px 5px 10px;"> 
-                     <iframe width="560" height="315" frameborder="0" allowfullscreen></iframe> 
-                      </div>'),
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/e48Xkk4R8fY" frameborder="0" allowfullscreen></iframe>
+                     </div>'),
                  h4("About Us"),
                  p("This a risk visualization web application developed using the 'shiny' package in R version 3.2.1. It was proudly developed by Dr. Levi Waldron, Jasmine Abdelnabi, Marcel Ramos, Finn Schubert, 
                    Henry Wang, Cody Boppert, Kezhen Fei, Ragheed Al-dulaimi and Dr. Ashish Joshi."),

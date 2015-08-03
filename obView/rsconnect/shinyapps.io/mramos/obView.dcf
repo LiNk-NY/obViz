@@ -1,8 +1,8 @@
 name: obView
 account: mramos
 server: shinyapps.io
-bundleId: 230335
+bundleId: 230973
 url: https://mramos.shinyapps.io/obView
-when: 1438404092.77245
+when: 1438571583.22793
 asMultiple: FALSE
 asStatic: FALSE

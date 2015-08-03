@@ -86,4 +86,7 @@ BRFSS <- BRFSS[ mapsdf, allow.cartesian = TRUE]
 BRFSS[, ASTDFQ:= Freq*AGEPR]
 BRFSS[, STATE := as.character(STATE)]
 
+levels(BRFSS$REGION)[2] <- "Midwest"
+BRFSS$AGEGROUP <- factor(BRFSS$AGEGROUP, levels = c("18-24", "25-34", "35-44", "45-54", "55-64", ">65"), ordered = TRUE)
+
 save(BRFSS, file = "data/fullsurvey.Rda")

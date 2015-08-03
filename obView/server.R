@@ -55,13 +55,12 @@ state_popup <- reactive({
       cast1 <- mydaat[fmf, allow.cartesian = TRUE]
       # cast1 <- merge(mydaat$data, fmf, by.x = "FIPS", by.y = "fips")
       # colnames(cast1)[grep("capfarmkt", colnames(cast1))] <- "MarketsPerPop"
-      setnames(cast1, "percapfarmkt", "MarketPerPop")
+      setnames(cast1, c("percapfarmkt", "REGION"), c("MarketPerPop", "Region"))
       cast1[, MarketPerPop := round(MarketPerPop, 2)]
       # cast1$MarketsPerPop <- round(cast1$MarketsPerPop, 2)
       cast1 <- cbind(cast1, Population.Proportion=round((cast1$popfm/sum(cast1$popfm))*100,2))
-      
-      return(gvisBubbleChart(cast1, idvar="ABB", xvar="Prevalence", yvar="MarketPerPop", 
-                             sizevar="Population.Proportion",colorvar="REGION",
+      return(gvisBubbleChart(cast1, idvar="STATE", xvar="Prevalence", yvar="MarketPerPop", 
+                             sizevar="Population.Proportion",colorvar="Region",
                              options=list(width=800,
                                           height=400,
                                           chartArea="{left:35,top:35,width:'75%',height:'80%'}",
@@ -69,7 +68,7 @@ state_popup <- reactive({
                                           titleTextStyle="{fontSize:18}",
                                           vAxis ="{title:'Farmers\\' Markets per 100,000 population', 
                                                                 viewWindowMode:'explicit', viewWindow:{min:0}}",
-                                          hAxis="{title:'Proportion of State Residents with Obesity',
+                                          hAxis="{title:'Proportion of State Residents with Obesity (%)',
                                                                 viewWindowMode:'explicit', viewWindow:{min:0}}"   )))
     })
     
@@ -80,13 +79,12 @@ state_popup <- reactive({
       cast1 <- mydaat[fmf, allow.cartesian = TRUE]
       # cast1 <- merge(mydaat$data, fmf, by.x = "FIPS", by.y = "fips")
       # colnames(cast1)[grep("capfstfd", colnames(cast1))] <- "FastFoodPerPop"
-      setnames(cast1, "percapfstfd", "FastFoodPerPop")
+      setnames(cast1, c("percapfstfd", "REGION"), c("FastFoodPerPop", "Region"))
       cast1[, FastFoodPerPop := round(FastFoodPerPop, 2)]
       # cast1$FastFoodPerPop <- round(cast1$FastFoodPerPop, 2)
       cast1 <- cbind(cast1, Population.Proportion=round((cast1$popff/sum(cast1$popff))*100,2))
-      
-      return(gvisBubbleChart(cast1, idvar="ABB", xvar="Prevalence", yvar="FastFoodPerPop", 
-                             sizevar="Population.Proportion",colorvar="REGION",
+      return(gvisBubbleChart(cast1, idvar="STATE", xvar="Prevalence", yvar="FastFoodPerPop", 
+                             sizevar="Population.Proportion",colorvar="Region",
                              options=list(width=800,
                                           height=400,
                                           chartArea="{left:35,top:35,width:'75%',height:'80%'}",
@@ -94,7 +92,7 @@ state_popup <- reactive({
                                           titleTextStyle="{fontSize:18}",
                                           vAxis ="{title:'Fast Food Restaurants per 100,000 population', 
                                                                 viewWindowMode:'explicit', viewWindow:{min:0}}",
-                                          hAxis="{title:'Proportion of State Residents with Obesity',
+                                          hAxis="{title:'Proportion of State Residents with Obesity (%)',
                                                                 viewWindowMode:'explicit', viewWindow:{min:0}}"   )))
     })
    
@@ -104,7 +102,7 @@ state_popup <- reactive({
       grptot <- aggregate(`1`+`0`~AGEGROUP, side, sum)
       colnames(grptot)[2] <- "TotFQ"
       side$GTOT <- grptot$TotFQ[match(side$AGEGROUP, grptot$AGEGROUP)]
-      side$Prop <- side$`1`/side$GTOT
+      side$Prop <- side$`1`*100/side$GTOT
       return(side)
     })
     
@@ -114,7 +112,7 @@ state_popup <- reactive({
       grptot <- aggregate(`1`+`0`~AGEGROUP, side, sum)
       colnames(grptot)[2] <- "TotFQ"
       side$GTOT <- grptot$TotFQ[match(side$AGEGROUP, grptot$AGEGROUP)]
-      side$Prop <- side$`1`/side$GTOT
+      side$Prop <- side$`1`*100/side$GTOT
       return(side)
     })
     
