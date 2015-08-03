@@ -53,6 +53,7 @@ shinyUI(
                tabPanel(title="ObesityView",
 
                         h3("Obesity Prevalence Proportion by State"),
+                        helpText("Click on a state to view the prevalence of obesity for the selected data."), 
                         leafletOutput(outputId="obemap"),
                           helpText(HTML(paste("Data are presented in percentages, age-adjusted to the nationwide age distribution from the 2010 Census.",
                                 tags$sup("2 "),"Darker colors indicate a higher prevalence of obesity.", sep=""))),
