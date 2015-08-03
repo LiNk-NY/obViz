@@ -16,8 +16,6 @@ tabPanelAbout <- source("about.r")$value
 
 shinyUI(
   fluidPage(
-    #includeScript("./www/jquery-2.1.1.min.js"),
-    #includeScript("./www/cunysph.js"),
     fluidRow(
       column(8, titlePanel("Obesity Prevalence: Where Does Your State Stand?"), 
 	helpText("The ObesityView interactive tool helps you visualize the distribution of obesity across the U.S. population.")),
